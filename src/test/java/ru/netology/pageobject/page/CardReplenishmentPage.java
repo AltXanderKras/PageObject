@@ -4,7 +4,6 @@ import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 import org.openqa.selenium.Keys;
 import ru.netology.pageobject.data.DataHelper.CardInfo;
-
 import static com.codeborne.selenide.Selenide.$;
 
 public class CardReplenishmentPage {
@@ -24,6 +23,7 @@ public class CardReplenishmentPage {
 
         return new DashboardPage();
     }
+
     public CardReplenishmentPage() {
         amountInput.shouldBe(Condition.appear);
     }

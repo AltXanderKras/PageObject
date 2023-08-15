@@ -38,5 +38,4 @@ public class DataHelper {
     public static CardInfo getCard2() {
         return new CardInfo("5559 0000 0000 0002");
     }
-
 }

@@ -48,7 +48,6 @@ public class MoneyTransferTest {
 
     @Test
     public void testTransferBetweenCards() {
-        //// Перевод межну картами
         int transactionAmount = 8888;
 
         dashboardPage = new DashboardPage();
@@ -60,17 +59,29 @@ public class MoneyTransferTest {
         assertEquals(startBalanceOfCard2 - transactionAmount, dashboardPage.getCardBalanceOnPage(card2));
     }
 
-    /// Попытка пополнения на сумму превышающую баланс
-    //// @Test
+    /////////////////////////// Баг
     public void testTransferAmountGreaterThanBalance() {
-        int transactionAmount = 10100;
+        int transactionAmount = 10001;
 
         dashboardPage = new DashboardPage();
+
+        int startBalanceOfCard1 = dashboardPage.getCardBalanceOnPage(card1);
+        int startBalanceOfCard2 = dashboardPage.getCardBalanceOnPage(card2);
+
+        System.out.println("Изначальный баланс карты  1: " + startBalanceOfCard1);
+        System.out.println("Изначальный баланс карты 2: " + startBalanceOfCard2);
+
         dashboardPage
                 .makeTransferTo(card1)
                 .makeTransferFromAndAmount(card2, transactionAmount);
 
-        assertEquals(startBalanceOfCard1, dashboardPage.getCardBalanceOnPage(card1));
-        assertEquals(startBalanceOfCard2, dashboardPage.getCardBalanceOnPage(card2));
+        int newBalanceOfCard1 = dashboardPage.getCardBalanceOnPage(card1);
+        int newBalanceOfCard2 = dashboardPage.getCardBalanceOnPage(card2);
+
+        System.out.println("Новый баланс карты 1: " + newBalanceOfCard1);
+        System.out.println("Новый баланс карты 2: " + newBalanceOfCard2);
+
+        assertEquals(startBalanceOfCard1, newBalanceOfCard1);
+        assertEquals(startBalanceOfCard2, newBalanceOfCard2);
     }
 }
