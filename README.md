@@ -1,1 +1,1 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/ya800f7gonpr6xlq?svg=true)](https://ci.appveyor.com/project/AltXanderKras/pageobject)
+[![Build status](https://ci.appveyor.com/api/projects/status/ya800f7gonpr6xlq?svg=true)]

@@ -2,6 +2,8 @@ package ru.netology.pageobject.test;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.netology.pageobject.data.DataHelper;
 import ru.netology.pageobject.data.DataHelper.UserInfo;
 import ru.netology.pageobject.data.DataHelper.CardInfo;
@@ -9,10 +11,15 @@ import ru.netology.pageobject.data.DataHelper.VerificationCode;
 import ru.netology.pageobject.page.DashboardPage;
 import ru.netology.pageobject.page.LoginPage;
 
+import com.codeborne.selenide.Configuration;
+import io.github.bonigarcia.wdm.WebDriverManager;
+
 import static com.codeborne.selenide.Selenide.open;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MoneyTransferTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(MoneyTransferTest.class);
 
     UserInfo validUser1 = DataHelper.getAuthInfo();
     CardInfo card1 = DataHelper.getCard1();
@@ -20,17 +27,31 @@ public class MoneyTransferTest {
     VerificationCode verificationCode = DataHelper.getVerificationTestCode();
 
     DashboardPage dashboardPage;
-    int startBalanceOfCard1;
-    int startBalanceOfCard2;
+    int balanceCard1;
+    int balanceCard2;
 
     @BeforeEach
     void setup() {
+        initializeDriver();
+        initializeDashboard();
+    }
+
+    private void initializeDriver() {
+        WebDriverManager.chromedriver().setup();
+        Configuration.browser = "chrome";
+        Configuration.startMaximized = true;
+    }
+
+    private void initializeDashboard() {
         open("http://localhost:9999");
         new LoginPage()
                 .login(validUser1)
                 .acceptCode(verificationCode.getTestCode());
         dashboardPage = new DashboardPage();
+        calculateDifference();
+    }
 
+    private void calculateDifference() {
         int difference =
                 dashboardPage.getCardBalanceOnPage(card1) - dashboardPage.getCardBalanceOnPage(card2);
         if (difference > 0) {
@@ -42,46 +63,46 @@ public class MoneyTransferTest {
                     .makeTransferTo(card1)
                     .makeTransferFromAndAmount(card2, difference / 2);
         }
-        startBalanceOfCard1 = dashboardPage.getCardBalanceOnPage(card1);
-        startBalanceOfCard2 = dashboardPage.getCardBalanceOnPage(card2);
+        balanceCard1 = dashboardPage.getCardBalanceOnPage(card1);
+        balanceCard2 = dashboardPage.getCardBalanceOnPage(card2);
     }
 
     @Test
     public void testTransferBetweenCards() {
         int transactionAmount = 8888;
 
-        dashboardPage = new DashboardPage();
+        DashboardPage dashboardPage = new DashboardPage();
         dashboardPage
                 .makeTransferTo(card1)
                 .makeTransferFromAndAmount(card2, transactionAmount);
 
-        assertEquals(startBalanceOfCard1 + transactionAmount, dashboardPage.getCardBalanceOnPage(card1));
-        assertEquals(startBalanceOfCard2 - transactionAmount, dashboardPage.getCardBalanceOnPage(card2));
+        assertEquals(balanceCard1 + transactionAmount, dashboardPage.getCardBalanceOnPage(card1));
+        assertEquals(balanceCard2 - transactionAmount, dashboardPage.getCardBalanceOnPage(card2));
     }
 
-    /////////////////////////// Баг
+    @Test
     public void testTransferAmountGreaterThanBalance() {
         int transactionAmount = 10001;
 
-        dashboardPage = new DashboardPage();
+        DashboardPage dashboardPage = new DashboardPage();
 
-        int startBalanceOfCard1 = dashboardPage.getCardBalanceOnPage(card1);
-        int startBalanceOfCard2 = dashboardPage.getCardBalanceOnPage(card2);
+        int startBalanceCard1 = dashboardPage.getCardBalanceOnPage(card1);
+        int startBalanceCard2 = dashboardPage.getCardBalanceOnPage(card2);
 
-        System.out.println("Изначальный баланс карты  1: " + startBalanceOfCard1);
-        System.out.println("Изначальный баланс карты 2: " + startBalanceOfCard2);
+        logger.info("Изначальный баланс карты 1: {}", startBalanceCard1);
+        logger.info("Изначальный баланс карты 2: {}", startBalanceCard2);
 
         dashboardPage
                 .makeTransferTo(card1)
                 .makeTransferFromAndAmount(card2, transactionAmount);
 
-        int newBalanceOfCard1 = dashboardPage.getCardBalanceOnPage(card1);
-        int newBalanceOfCard2 = dashboardPage.getCardBalanceOnPage(card2);
+        int newBalanceCard1 = dashboardPage.getCardBalanceOnPage(card1);
+        int newBalanceCard2 = dashboardPage.getCardBalanceOnPage(card2);
 
-        System.out.println("Новый баланс карты 1: " + newBalanceOfCard1);
-        System.out.println("Новый баланс карты 2: " + newBalanceOfCard2);
+        logger.info("Новый баланс карты 1: {}", newBalanceCard1);
+        logger.info("Новый баланс карты 2: {}", newBalanceCard2);
 
-        assertEquals(startBalanceOfCard1, newBalanceOfCard1);
-        assertEquals(startBalanceOfCard2, newBalanceOfCard2);
+        assertEquals(startBalanceCard1, newBalanceCard1);
+        assertEquals(startBalanceCard2, newBalanceCard2);
     }
 }

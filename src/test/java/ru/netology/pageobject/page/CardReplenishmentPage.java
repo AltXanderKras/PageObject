@@ -4,12 +4,18 @@ import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 import org.openqa.selenium.Keys;
 import ru.netology.pageobject.data.DataHelper.CardInfo;
+
+
+import java.time.Duration;
+
 import static com.codeborne.selenide.Selenide.$;
 
 public class CardReplenishmentPage {
     private final SelenideElement amountInput = $("span[data-test-id='amount'] input");
     private final SelenideElement fromCardNumberInput = $("span[data-test-id='from'] input");
     private final SelenideElement okButton = $("button[data-test-id='action-transfer']");
+    private final SelenideElement escapeButton = $("button[data-test-id='action-cancel']");
+    private final SelenideElement errorNotification = $("div[class='notification__content']");
 
     private void inputCardInfoAndAmount(CardInfo card, int amount) {
         amountInput.sendKeys(Keys.LEFT_SHIFT, Keys.HOME, Keys.BACK_SPACE);
